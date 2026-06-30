@@ -12,7 +12,6 @@ export async function login(req: Request, res: Response): Promise<void> {
   try {
     const { username, password } = req.body;
 
-    // Validation
     if (!username || !password) {
       res.status(400).json({
         success: false,
@@ -22,7 +21,6 @@ export async function login(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    // Authenticate user
     const { token, refreshToken, user } = await AuthService.login(username, password);
 
     consola.success(`✅ Login successful: ${username} (ID: ${user.id})`);

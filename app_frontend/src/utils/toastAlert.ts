@@ -32,12 +32,10 @@ export function toastAlert(config: ToastConfig) {
     ...rest
   } = config;
 
-  // Determine autoClose duration based on type
   const autoCloseDuration = customAutoClose !== undefined 
     ? customAutoClose 
     : (type === 'success' || type === 'loading' ? 3000 : 5000);
 
-  // Build message content (supports description)
   const content = description 
     ? `${message}\n${description}`
     : message;

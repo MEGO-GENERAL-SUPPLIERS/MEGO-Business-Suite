@@ -6,6 +6,7 @@ import {
   CreationOptional,
 } from 'sequelize';
 import { sequelize } from '../config/database.js';
+import type CompanyBranch from './companyBranch.js';
 
 export class Company extends Model<
   InferAttributes<Company>,
@@ -16,6 +17,8 @@ export class Company extends Model<
   declare name: string; 
   declare logo_url: CreationOptional<string>;
   declare country_id: CreationOptional<number>;
+
+  declare branches?: CompanyBranch[];
 }
 
 Company.init(

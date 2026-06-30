@@ -12,7 +12,7 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
   const transaction = await queryInterface.sequelize.transaction();
 
   try {
-    await createTableWithDefaults(queryInterface, 'company', {
+    await createTableWithDefaults(queryInterface, 'companies', {
       name: {
         type: DataTypes.STRING(255),
         allowNull: false,
@@ -30,15 +30,15 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
       }
     }, {includeVoid: true, transaction});
 
-    await queryInterface.addIndex('company', {
+    await queryInterface.addIndex('companies', {
       fields: ['name'],
       where: { void : 0},
       unique: true,
       transaction
     });
 
-    await queryInterface.addConstraint('company', {
-      name: 'fk_company_country_id',
+    await queryInterface.addConstraint('companies', {
+      name: 'fk_companies_country_id',
       type: 'foreign key',
       fields: ['country_id'],
       references: {
@@ -51,7 +51,7 @@ export async function up(queryInterface: QueryInterface): Promise<void> {
     });
 
     await transaction.commit();
-    consola.success('⬆️  Migration executed: create-company');
+    consola.success('⬆️  Migration executed: create-companies');
   } catch (error: any) {
     await transaction.rollback();
     consola.error('❌ Migration failed, rolled back');
@@ -63,13 +63,10 @@ export async function down(queryInterface: QueryInterface): Promise<void> {
   const transaction = await queryInterface.sequelize.transaction();
 
   try {
-    // === ADD YOUR ROLLBACK LOGIC HERE ===
-    await queryInterface.removeConstraint('company', 'fk_company_country_id', { transaction });
-
-    await queryInterface.dropTable('company', { transaction });
-
+    await queryInterface.removeConstraint('companies', 'fk_companies_country_id', { transaction });
+    await queryInterface.dropTable('companies', { transaction });
     await transaction.commit();
-    consola.warn('⬇️  Migration rolled back: create-company');
+    consola.warn('⬇️  Migration rolled back: create-companies');
   } catch (error: any) {
     await transaction.rollback();
     consola.error('❌ Rollback failed');

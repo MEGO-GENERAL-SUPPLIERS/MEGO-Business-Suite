@@ -20,9 +20,11 @@ const Sidebar = ({ isDark, theme, isOpen, setIsOpen, activeSubmenu, setActiveSub
   setIsExpanded: (expanded: boolean) => void
 }) => {
   const [isMobile, setIsMobile] = useState(false);
+  const [footerPopupPos, setFooterPopupPos] = useState<{ left: number; bottom: number } | null>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const submenuRef = useRef<HTMLDivElement>(null);
   const footerPopupRef = useRef<HTMLDivElement>(null);
+  const footerButtonRef = useRef<HTMLButtonElement>(null);
   const settings = getLocalSettings();
   const submenuAsColumn = settings.layout.sidebar?.submenuAsColumn ?? true;
   const themeColors = themes[theme][isDark ? 'dark' : 'light'];
@@ -37,6 +39,16 @@ const Sidebar = ({ isDark, theme, isOpen, setIsOpen, activeSubmenu, setActiveSub
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  useEffect(() => {
+    if (showFooterPopup && !isMobile && footerButtonRef.current) {
+      const rect = footerButtonRef.current.getBoundingClientRect();
+      setFooterPopupPos({
+        left: rect.right + 8,
+        bottom: window.innerHeight - rect.bottom + 12,
+      });
+    }
+  }, [showFooterPopup, isMobile, isExpanded]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -130,7 +142,15 @@ const Sidebar = ({ isDark, theme, isOpen, setIsOpen, activeSubmenu, setActiveSub
               )}
             </div>
 
-            <div className="flex-1 overflow-y-auto py-4 scrollbar-thin scrollbar-thumb-blue-500/20 scrollbar-track-transparent">
+            {/*
+              overflow-x-hidden added below: when only overflow-y is set, browsers compute
+              overflow-x as "auto" too (per spec, you can't have one axis truly "visible"
+              while the other scrolls). That made the absolutely-positioned tooltips below
+              (which intentionally sit outside the w-16 rail via left-full) register as
+              horizontal overflow, producing an unwanted x-scrollbar in mini mode.
+              Explicitly hiding x-overflow here stops the scrollbar from appearing.
+            */}
+            <div className="flex-1 overflow-y-auto overflow-x-hidden py-4 scrollbar-thin scrollbar-thumb-blue-500/20 scrollbar-track-transparent">
               <div className="space-y-1 px-2">
                 {menuItems.map((item) => {
                   const Icon = item.icon;
@@ -156,9 +176,23 @@ const Sidebar = ({ isDark, theme, isOpen, setIsOpen, activeSubmenu, setActiveSub
                         )}
                       </button>
                       
-                      {/* Tooltip for mini sidebar */}
+                      {/* Tooltip for mini sidebar — fixed positioning escapes the
+                          overflow-x-hidden ancestor entirely, so it renders correctly
+                          regardless of the scroll container's clipping. */}
                       {!shouldShowExpanded && (
-                        <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
+                        <div
+                          className="fixed ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-[100]"
+                          style={{ left: '4rem', top: 'auto' }}
+                          ref={(el) => {
+                            if (!el) return;
+                            const btn = el.previousElementSibling as HTMLElement | null;
+                            if (btn) {
+                              const rect = btn.getBoundingClientRect();
+                              el.style.top = `${rect.top + rect.height / 2}px`;
+                              el.style.transform = 'translateY(-50%)';
+                            }
+                          }}
+                        >
                           {item.label}
                         </div>
                       )}
@@ -169,17 +203,42 @@ const Sidebar = ({ isDark, theme, isOpen, setIsOpen, activeSubmenu, setActiveSub
             </div>
 
             <div className={`${colors.footer} ${colors.border} border-t backdrop-blur-xl p-3 relative`}>
-              <button
-                data-footer-button
-                onClick={() => setShowFooterPopup(!showFooterPopup)}
-                className={`w-full flex items-center ${shouldShowExpanded ? 'justify-start' : 'justify-center'} gap-3 px-3 py-3 rounded-lg ${colors.menuItemBgColor} ${colors.menuItemBgColorHover} ${colors.text} transition-all duration-200 ${showFooterPopup ? `${themeColors.accent}/20` : ''}`}
-                title={!shouldShowExpanded ? "Quick Settings" : undefined}
-              >
-                <Settings className="w-5 h-5 flex-shrink-0" />
-                {shouldShowExpanded && (
-                  <span className="text-sm font-small">Quick Settings</span>
+              <div className="relative group">
+                <button
+                  data-footer-button
+                  ref={footerButtonRef}
+                  onClick={() => setShowFooterPopup(!showFooterPopup)}
+                  className={`w-full flex items-center ${shouldShowExpanded ? 'justify-start' : 'justify-center'} gap-3 px-3 py-3 rounded-lg ${colors.menuItemBgColor} ${colors.menuItemBgColorHover} ${colors.text} transition-all duration-200 ${showFooterPopup ? `${themeColors.accent}/20` : ''}`}
+                  title={!shouldShowExpanded ? "Quick Settings" : undefined}
+                >
+                  <Settings className="w-5 h-5 flex-shrink-0" />
+                  {shouldShowExpanded && (
+                    <span className="text-sm font-small">Quick Settings</span>
+                  )}
+                </button>
+
+                {/* Tooltip for footer button in mini mode, consistent with menu item
+                    tooltips above. Uses fixed positioning anchored to the button's own
+                    rect so it correctly floats outside the w-16 rail instead of being
+                    clipped or pushed into the scroll container. */}
+                {!shouldShowExpanded && (
+                  <div
+                    className="fixed ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-[100]"
+                    style={{ left: '4rem', top: 'auto' }}
+                    ref={(el) => {
+                      if (!el) return;
+                      const btn = el.previousElementSibling as HTMLElement | null;
+                      if (btn) {
+                        const rect = btn.getBoundingClientRect();
+                        el.style.top = `${rect.top + rect.height / 2}px`;
+                        el.style.transform = 'translateY(-50%)';
+                      }
+                    }}
+                  >
+                    Quick Settings
+                  </div>
                 )}
-              </button>
+              </div>
             </div>
 
           </div>
@@ -211,59 +270,71 @@ const Sidebar = ({ isDark, theme, isOpen, setIsOpen, activeSubmenu, setActiveSub
             </div>
           )}
         </div>
-
-        {/* Quick Settings Popup - Desktop (fixed position) */}
-        {showFooterPopup && !isMobile && (
-          <div
-            ref={footerPopupRef}
-            className={`fixed ${colors.footerPopup} ${colors.border} border rounded-xl shadow-xl backdrop-blur-sm py-2 px-2 z-[100] w-56`}
-            style={{
-              bottom: '1.5rem',
-              left: isExpanded ? '15rem' : '4rem',
-            }}
-          >
-            <div className="space-y-0.5">
-              {footerMenuItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => handleFooterItemClick(item.id)}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg ${colors.menuItemBgColor} ${colors.menuItemBgColorHover} ${colors.text} text-left text-sm transition-all duration-200`}
-                  >
-                    <Icon className="w-4 h-4 flex-shrink-0 opacity-70" />
-                    <span>{item.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Quick Settings Popup - Mobile (inline) */}
-        {showFooterPopup && isMobile && (
-          <div
-            ref={footerPopupRef}
-            className={`fixed bottom-full left-0 mb-2 w-full ${colors.footerPopup} ${colors.border} border rounded-xl shadow-xl backdrop-blur-sm py-2 px-2 z-[100]`}
-          >
-            <div className="space-y-0.5">
-              {footerMenuItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => handleFooterItemClick(item.id)}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg ${colors.menuItemBgColor} ${colors.menuItemBgColorHover} ${colors.text} text-left text-sm transition-all duration-200`}
-                  >
-                    <Icon className="w-4 h-4 flex-shrink-0 opacity-70" />
-                    <span>{item.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
       </div>
+
+      {/*
+        Both popups below are rendered OUTSIDE the translate-x sidebarRef div on purpose.
+        That div carries a CSS transform (translate-x-0 / -translate-x-full), and any
+        transformed ancestor becomes the containing block for fixed-position descendants —
+        so "fixed" children inside it stop being relative to the real viewport and instead
+        get sized/positioned relative to that (narrow, w-16/w-60) box. On desktop this went
+        unnoticed because the sidebar sits flush at left:0/top:0, but on small screens it
+        squeezed the popup into the sidebar's own narrow width instead of the full screen.
+        Rendering them here, as siblings of the transformed div, keeps them anchored to the
+        actual viewport on every screen size.
+      */}
+
+      {/* Quick Settings Popup - Desktop (fixed position, flyout beside the button) */}
+      {showFooterPopup && !isMobile && footerPopupPos && (
+        <div
+          ref={footerPopupRef}
+          className={`fixed ${colors.footerPopup} ${colors.border} border rounded-xl shadow-xl backdrop-blur-sm py-2 px-2 z-[100] w-60`}
+          style={{
+            bottom: `${footerPopupPos.bottom}px`,
+            left: `${footerPopupPos.left}px`,
+          }}
+        >
+          <div className="space-y-0.5">
+            {footerMenuItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleFooterItemClick(item.id)}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg ${colors.menuItemBgColor} ${colors.menuItemBgColorHover} ${colors.text} text-left text-sm transition-all duration-200`}
+                >
+                  <Icon className="w-4 h-4 flex-shrink-0 opacity-70" />
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Quick Settings Popup - Mobile (bottom sheet, spans the real viewport width) */}
+      {showFooterPopup && isMobile && (
+        <div
+          ref={footerPopupRef}
+          className={`fixed bottom-0 inset-x-0 mb-4 mx-16 ${colors.footerPopup} ${colors.border} border rounded-xl shadow-xl backdrop-blur-sm py-2 px-2 z-[100]`}
+        >
+          <div className="space-y-0.5">
+            {footerMenuItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleFooterItemClick(item.id)}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg ${colors.menuItemBgColor} ${colors.menuItemBgColorHover} ${colors.text} text-left text-sm transition-all duration-200`}
+                >
+                  <Icon className="w-4 h-4 flex-shrink-0 opacity-70" />
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </>
   );
 };

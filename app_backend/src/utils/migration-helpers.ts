@@ -92,7 +92,7 @@ export function getDefaultTableColumns(
  * ✅ Idempotent-safe for migration reruns
  * 
  * @example
- * await createTableWithDefaults(queryInterface, 'companies', {
+ * await createTableWithDefaults(queryInterface, 'company', {
  *   name: { type: DataTypes.STRING(255), allowNull: false }
  * }, { transaction });
  * 
@@ -108,7 +108,7 @@ export async function createTableWithDefaults(
   customColumns: CustomColumns = {},
   options: {
     includeVoid?: boolean;
-    enableAutoUpdate?: boolean; // Auto-enable ON UPDATE behavior (default: true)
+    enableAutoUpdate?: boolean; 
     charset?: string;
     collate?: string;
     engine?: string;

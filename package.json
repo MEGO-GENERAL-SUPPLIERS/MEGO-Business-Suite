@@ -1,9 +1,14 @@
 {
   "name": "mego-business-suite",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "MEGO Business Suite is a business systsem utilisable by businesses to manage clients, products, services and books related to the company",
   "main": "index.js",
   "scripts": {
+    "install:all": "npm install && cd app_frontend && npm install && cd app_backend && npm install",
+    "dev:app_frontend": "cd app_frontend && npm run dev",
+    "dev:app_backend": "cd app_backend && npm run dev",
+    "dev:wait": "concurrently -k -r -n BE,FE \"npm run dev:app_backend\" \"wait-on tcp:3002 && npm run dev:app_frontend\"",
+    "dev": "concurrently -k -r -n BE,FE \"npm run dev:app_backend\" \"sleep 5 && npm run dev:app_frontend\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -19,6 +24,7 @@
   },
   "homepage": "https://github.com/MEGO-GENERAL-SUPPLIERS/MEGO-Business-Suite#readme",
   "devDependencies": {
-    "concurrently": "^10.0.3"
+    "concurrently": "^10.0.3",
+    "wait-on": "^9.0.10"
   }
 }

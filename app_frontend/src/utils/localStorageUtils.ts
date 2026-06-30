@@ -21,7 +21,7 @@ export interface AdminAuth {
   loggedIn: boolean;
   loginTime?: string;
   logoutTime?: string;
-  token?: string; // e.g., JWT
+  token?: string;
 }
 
 export interface NavbarSettings {
@@ -63,14 +63,12 @@ const defaultAdminAuth: AdminAuth = {
 // ====== SSR-SAFE STORAGE ACCESS ======
 export const isBrowser = () => typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
 
-// Ensure localStorage is initialized with defaults if missing
 export const ensureLocalStorageUtils = (): void => {
+  if (!isBrowser()) return; // ✅ Added SSR check
   try {
-    // Initialize main settings
     if (!localStorage.getItem(STORAGE_KEY)) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultSettings));
     }
-    // Initialize admin auth
     if (!localStorage.getItem(ADMIN_STORAGE_KEY)) {
       localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(defaultAdminAuth));
     }
@@ -79,9 +77,8 @@ export const ensureLocalStorageUtils = (): void => {
   }
 };
 
-// Get settings from localStorage or return defaults
 export const getLocalSettings = (): LocalStorageUtils => {
-  if(!isBrowser) return defaultSettings; 
+  if(!isBrowser()) return defaultSettings; // ✅ Added () to invoke the function
 
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -104,8 +101,6 @@ export const getLocalSettings = (): LocalStorageUtils => {
             ? { ...defaultSettings.layout.navbar, ...parsed.layout.navbar } 
             : defaultSettings.layout.navbar
         },
-        // user: { ...defaultSettings.user, ...parsed.user },
-        // auth: { ...defaultSettings.auth, ...parsed.auth }
       };
     }
     
@@ -117,9 +112,8 @@ export const getLocalSettings = (): LocalStorageUtils => {
   return defaultSettings;
 };
 
-// Save settings to localStorage
 export const saveLocalSettings = (settings: Partial<LocalStorageUtils>): boolean => {
-  if(!isBrowser) return false;
+  if(!isBrowser()) return false; // ✅ Added () to invoke the function
 
   try {
     const current = getLocalSettings();
@@ -137,34 +131,30 @@ export const saveLocalSettings = (settings: Partial<LocalStorageUtils>): boolean
   }
 };
 
-// Update Api Config
 export const updateApiConfig = (updates: Partial<IApiConfig>): boolean => {
+  if (!isBrowser()) return false; // ✅ Added SSR check
   try {
     const current = getApiConfig();
     const normalized: IApiConfig = {
       ...current,
       ...updates,
-      // Auto-normalize baseUrl (ensure leading slash, no trailing slash)
       baseUrl: updates.baseUrl 
         ? updates.baseUrl
-            .replace(/\/+$/, '')        // Remove trailing slashes
-            .replace(/^([^/])/, '/$1')  // Ensure leading slash
+            .replace(/\/+$/, '')
+            .replace(/^([^/])/, '/$1')
         : current.baseUrl
     };
     
-    // Port validation
     if (updates.port && !/^\d{1,5}$/.test(normalized.port)) {
       console.error('[API Config] Invalid port format');
       return false;
     }
     
-    // Protocol validation
     if (updates.protocol && !['http', 'https'].includes(normalized.protocol)) {
       console.error('[API Config] Invalid protocol');
       return false;
     }
     
-    // Save to localStorage
     return saveLocalSettings({ api: normalized });
   } catch (e) {
     console.error('[API Config] Update failed', e);
@@ -172,16 +162,14 @@ export const updateApiConfig = (updates: Partial<IApiConfig>): boolean => {
   }
 };
 
-// Api Config
 export const getApiConfig = (): IApiConfig => getLocalSettings().api;
 
-// Update only the theme
 export const setTheme = (name: 'light' | 'dark'): void => {
   saveLocalSettings({ theme: { name } });
 };
 
-// Admin Auth utilities
 export const getAdminAuth = (): AdminAuth => {
+  if (!isBrowser()) return defaultAdminAuth; // ✅ Added SSR safety check
   try {
     const stored = localStorage.getItem(ADMIN_STORAGE_KEY);
     if (stored) {
@@ -197,6 +185,7 @@ export const getAdminAuth = (): AdminAuth => {
 };
 
 export const setAdminAuth = (auth: Partial<AdminAuth>) => {
+  if (!isBrowser()) return; // ✅ Added SSR safety check
   try {
     const current = getAdminAuth();
     const updated = { ...current, ...auth };

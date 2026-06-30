@@ -1,8 +1,7 @@
 // src/services/auth.service.ts
-import { User, Person, Gender, AccessLevel, Role, Privilege } from '../models/index.js';
+import { User, Person, Gender, AccessLevel, Role, Privilege, CompanyBranch, Company } from '../models/index.js';
 import { JwtService, JwtPayload } from './jwt.service.js';
 import bcrypt from 'bcryptjs';
-import consola from 'consola';
 
 export interface LoginResponse {
   token: string;
@@ -15,6 +14,16 @@ export interface LoginResponse {
       name: string;
       description: string | null;
     };
+    branch: {
+      id: number;
+      name: string;
+      address: string | null;
+      company: {
+        id: number;
+        name: string;
+        logo_url: string | null;
+      } | null;
+    } | null;
     roles: Array<{
       id: number;
       name: string;
@@ -39,7 +48,7 @@ export interface LoginResponse {
         alias_name: string;
       } | null;
       last_login: string | null;
-    } | null; // Keep null if business logic allows users without persons
+    } | null;
     is_active: boolean;
     is_verified: boolean;
     enabled_2fa: boolean;
@@ -70,13 +79,27 @@ export class AuthService {
           model: AccessLevel,
           as: 'access_level',
           required: true,
-          attributes: ['id', 'name'] // 'description'] 
+          attributes: ['id', 'name'] 
+        },
+        {
+          model: CompanyBranch,
+          as: 'branch',
+          required: false,
+          attributes: ['id', 'name', 'address'],
+          include: [
+            {
+              model: Company,
+              as: 'company',
+              required: false,
+              attributes: ['id', 'name', 'logo_url']
+            }
+          ]
         },
         {
           model: Role,
           as: 'roles',
           through: { attributes: ['is_primary'] },
-          attributes: ['id', 'name'] // 'description']
+          attributes: ['id', 'name']
         },
         {
           model: Privilege,
@@ -94,7 +117,6 @@ export class AuthService {
       throw new Error('INVALID_CREDENTIALS');
     }
 
-    // Safety check for password existence
     if (!user.password) {
       throw new Error('INVALID_CREDENTIALS');
     }
@@ -136,13 +158,10 @@ export class AuthService {
       };
     });
 
-    // ✅ FIXED: Deduplication Logic
-    // 1. Get IDs of Direct User Privileges
     const directPrivilegeIds = new Set(
       user.privileges?.map((p: any) => p.id) || []
     );
 
-    // 2. Map Direct Privileges
     const directPrivileges = (user.privileges || []).map((p: any) => ({
       id: p.id,
       name: p.name,
@@ -150,7 +169,6 @@ export class AuthService {
       source: 'user' as const
     }));
 
-    // 3. Map Role Privileges, excluding those already granted directly
     const rolePrivileges = user.roles.flatMap((r: any) => 
       (r.privileges || []).map((p: any) => ({
         id: p.id,
@@ -158,7 +176,7 @@ export class AuthService {
         action_name: p.action_name,
         source: 'role' as const
       }))
-    ).filter((p: any) => !directPrivilegeIds.has(p.id)); // ✅ Check against Direct IDs
+    ).filter((p: any) => !directPrivilegeIds.has(p.id)); 
 
     return {
       id: user.id,
@@ -168,6 +186,16 @@ export class AuthService {
         name: user.access_level.name,
         description: user.access_level.description
       },
+      branch: user.branch ? {
+        id: user.branch.id,
+        name: user.branch.name,
+        address: user.branch.address,
+        company: user.branch.company ? {
+          id: user.branch.company.id,
+          name: user.branch.company.name,
+          logo_url: user.branch.company.logo_url
+        } : null
+      } : null,
       roles,
       privileges: [...directPrivileges, ...rolePrivileges],
       person: user.person ? {

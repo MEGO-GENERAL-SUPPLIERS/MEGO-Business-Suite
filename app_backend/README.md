@@ -1,5 +1,8 @@
 
 ## 🗝️ First-Time Setup
+### Clone project
+
+### Rename files
 
 ### 1. Copy environment template
 ```cp .env.example .env```
@@ -14,7 +17,10 @@ Create a user with privileges to create tables
 ### 4. Run migrations
 ```npm run db:migrate```
 
-### 5. Start dev server (auto-reload)
+### 5. Seed
+```npm run db:seed```
+
+### 6. Start dev server (auto-reload)
 ```npm run dev```
 
 ## 🌡️ Connection Diagnostics
@@ -26,6 +32,13 @@ Create a user with privileges to create tables
   # ❌ [CLI Diagnostic] Database connection FAILED
   # 🔑 Authentication failed. Verify DB_USER/ DB_PASSWORD
 ```
+
+## Developer's guide
+### Creating Running Migrations File
+```npm run db:generate:migration -- --default --table-name=tableName preferred-migration-name```
+
+### Generating Seed file
+
 
 ## 🚀 Production Deployment
 ```

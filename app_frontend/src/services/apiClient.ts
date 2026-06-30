@@ -110,6 +110,8 @@ class ApiClientClass {
         const auth = getAdminAuth();
         if (auth.token) {
           config.headers.Authorization = `Bearer ${auth.token}`;
+        } else{
+          delete config.headers.Authorization;
         }
         
         // Add request ID for tracing

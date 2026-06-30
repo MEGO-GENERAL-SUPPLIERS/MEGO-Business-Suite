@@ -10,6 +10,7 @@ import Person from './person.js';
 import AccessLevel from './accessLevel.js';
 import Role from './role.js';
 import Privilege from './privilege.js';
+import CompanyBranch from './companyBranch.js'; 
 import bcrypt from 'bcryptjs';
 
 export class User extends Model<
@@ -22,21 +23,21 @@ export class User extends Model<
   declare password: CreationOptional<string>;
   declare person_id: CreationOptional<number>;
   declare access_level_id: CreationOptional<number>;
+  declare company_branch_id: CreationOptional<number>; 
   declare is_active: boolean;
   declare is_verified: boolean;
   declare enabled_2fa: boolean; 
 
   declare person?: Person;
   declare access_level?: AccessLevel;
+  declare branch?: CompanyBranch; 
   declare roles?: Role[];
   declare privileges?: Privilege[];
 
-  // Instance method to verify password
   async verifyPassword(password: string): Promise<boolean> {
     return bcrypt.compare(password, this.password);
   }
 
-  // Instance method to hash password before save
   static async hashPassword(password: string): Promise<string> {
     const salt = await bcrypt.genSalt(10);
     return bcrypt.hash(password, salt);
@@ -66,6 +67,13 @@ User.init(
       type: DataTypes.BIGINT,
       allowNull: true,
       defaultValue: 1
+    },
+    company_branch_id: {
+      type: DataTypes.BIGINT,
+      allowNull: true,
+      references: { model: 'company_branches', key: 'id' },
+      onUpdate: 'CASCADE',
+      onDelete: 'RESTRICT'
     },
     is_active: {
       type: DataTypes.BOOLEAN,

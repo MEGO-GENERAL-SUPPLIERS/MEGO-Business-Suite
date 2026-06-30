@@ -52,7 +52,7 @@ const Navbar = ({ isDark, setIsDark, theme, setTheme, setIsOpen, onBack, canGoBa
     { id: 5, title: 'Task completed', message: 'Data import finished successfully', time: '4 hours ago', read: true }
   ];
 
-  const unreadCount = notificationList.length; // notificationList.filter(n => !n.read).length;
+  const unreadCount = notificationList.filter(n => !n.read).length;
 
   const handleProfileItemClick = () => {
     setShowProfile(false);

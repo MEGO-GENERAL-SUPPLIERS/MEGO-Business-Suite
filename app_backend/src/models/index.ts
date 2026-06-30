@@ -18,6 +18,7 @@ import RolePrivilege from './rolePrivilege.js';
 import User from './user.js';
 import UserPrivilege from './userPrivilege.js';
 import UserRole from './userRole.js';
+import CompanyBranch from './companyBranch.js';
 
 // Associations
 Gender.hasMany(Person, { foreignKey: 'gender_id', as: 'person' });
@@ -47,12 +48,19 @@ PersonSignature.belongsTo(Person, { foreignKey: 'person_id', as: 'person' });
 Country.hasMany(Company, { foreignKey: 'country_id', as: 'companies' });
 Company.belongsTo(Country, { foreignKey: 'country_id', as: 'country' });
 
+Company.hasMany(CompanyBranch, { foreignKey: 'company_id', as: 'branches' });
+CompanyBranch.belongsTo(Company, { foreignKey: 'company_id', as: 'company' });
+
+CompanyBranch.hasMany(User, { foreignKey: 'company_branch_id', as: 'users' });
+User.belongsTo(CompanyBranch, { foreignKey: 'company_branch_id', as: 'branch' });
+
 Role.belongsToMany(User, {
   through: UserRole,
   as: 'users',
   foreignKey: 'role_id',
   otherKey: 'user_id'
 });
+
 User.belongsToMany(Role, {
   through: UserRole,
   as: 'roles',
@@ -105,5 +113,6 @@ export {
   RolePrivilege,
   User,
   UserPrivilege,
-  UserRole
+  UserRole,
+  CompanyBranch
 };
