@@ -1,0 +1,57 @@
+{
+  "name": "mego-admin-dashboard-api",
+  "version": "1.0.0",
+  "author": "Emmanuel Z.K. Nyondo, Golden Khonje",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "db:create": "tsx src/cli/create-db.ts",
+    "db:drop": "tsx src/cli/drop-db.ts",
+    "db:migrate": "tsx src/cli/migrate.ts",
+    "db:check:migrations": "npx tsx src/cli/check-migration-order.ts",
+    "db:rollback": "npm run db:migrate -- rollback",
+    "db:rollback:all": "npm run db:migrate -- rollback:all",
+    "db:check": "tsx src/cli/check-db.ts",
+    "db:generate:migration": "tsx src/cli/generate-migration.ts",
+    "db:generate:seed": "tsx src/cli/generate-seeder.ts",
+    "db:generate:model": "tsx src/cli/generate-model.ts",
+    "db:seed": "tsx src/cli/seed.ts",
+    "db:verify-seed": "tsx src/cli/verify-seed.ts",
+    "db:seed:rollback": "tsx src/cli/seed.ts --rollback",
+    "build": "esbuild src/ --outdir=dist --bundle --platform=node --external:mysql2 --sourcemap",
+    "start": "node dist/server.js",
+    "env:verify": "tsx src/cli/verify-env.ts"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "consola": "^3.2.3",
+    "cors": "^2.8.6",
+    "dotenv-safe": "^8.2.0",
+    "express": "^4.18.3",
+    "express-rate-limit": "^8.2.1",
+    "express-validator": "^7.3.1",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "mysql2": "^3.16.2",
+    "sequelize": "^6.37.7",
+    "socket.io": "^4.8.3",
+    "umzug": "^3.8.2",
+    "world-countries": "^5.1.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^20.11.0",
+    "@types/socket.io": "^3.0.1",
+    "@types/umzug": "^2.3.4",
+    "esbuild": "^0.19.11",
+    "glob": "^10.3.10",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.17.0"
+  }
+}

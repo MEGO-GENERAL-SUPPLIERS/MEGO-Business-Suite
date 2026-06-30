@@ -1,0 +1,16 @@
+# STOP AND RESET (required for init scripts to run)
+docker stop mysql80 && docker rm mysql80
+docker volume rm mysql80_volume  # ⚠️ Deletes all data!
+
+# START FRESH WITH CORRECT CONFIG
+docker run -d \
+  --name mysql80 \
+  --network docker_net \
+  --ip 172.17.0.4 \
+  -p 33060:3306 \
+  -e MYSQL_ROOT_PASSWORD=root \
+  -v mysql80_volume:/var/lib/mysql \
+  -v "$(pwd)/mysql-init:/docker-entrypoint-initdb.d:ro" \
+  --restart unless-stopped \
+  mysql:8.0 \
+  --default-authentication-plugin=mysql_native_password

@@ -1,0 +1,12 @@
+# Directories 
+node_modules/
+
+# Configs
+.env
+
+# Output
+dist/
+
+# Logs
+logs/
+*.log
