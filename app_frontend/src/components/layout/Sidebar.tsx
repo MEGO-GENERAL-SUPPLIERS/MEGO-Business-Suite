@@ -272,18 +272,6 @@ const Sidebar = ({ isDark, theme, isOpen, setIsOpen, activeSubmenu, setActiveSub
         </div>
       </div>
 
-      {/*
-        Both popups below are rendered OUTSIDE the translate-x sidebarRef div on purpose.
-        That div carries a CSS transform (translate-x-0 / -translate-x-full), and any
-        transformed ancestor becomes the containing block for fixed-position descendants —
-        so "fixed" children inside it stop being relative to the real viewport and instead
-        get sized/positioned relative to that (narrow, w-16/w-60) box. On desktop this went
-        unnoticed because the sidebar sits flush at left:0/top:0, but on small screens it
-        squeezed the popup into the sidebar's own narrow width instead of the full screen.
-        Rendering them here, as siblings of the transformed div, keeps them anchored to the
-        actual viewport on every screen size.
-      */}
-
       {/* Quick Settings Popup - Desktop (fixed position, flyout beside the button) */}
       {showFooterPopup && !isMobile && footerPopupPos && (
         <div
