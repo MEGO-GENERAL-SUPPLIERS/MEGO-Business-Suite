@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { getLocalSettings, saveLocalSettings } from "../../utils/localStorageUtils";
 import { themes, defaultTheme, type ThemeKey } from "../../data/theme";
 import { appConfigs } from "../../data/appConfigs";
-import { Menu, ArrowLeftIcon, Sun, Moon, Zap, Bell, UserCircleIcon, Settings, LogOut } from "lucide-react";
+import { PanelLeft, ArrowLeftIcon, Sun, Moon, Zap, Bell, UserCircleIcon, Settings, LogOut } from "lucide-react";
 import { useAuth } from '../../hooks/useAuth';
 
 const Navbar = ({ isDark, setIsDark, theme, setTheme, setIsOpen, onBack, canGoBack, showQuickAccess, setShowQuickAccess, isAtRoot, isExpanded, setIsExpanded } : {
@@ -87,7 +87,7 @@ const Navbar = ({ isDark, setIsDark, theme, setTheme, setIsOpen, onBack, canGoBa
             onClick={() => setIsOpen(true)}
             className={`lg:hidden ${colors.text} p-2 rounded-lg ${colors.menuItemBgColorHover} transition-all duration-200`}
           >
-            <Menu className="w-5 h-5" />
+            <PanelLeft className="w-5 h-5" />
           </button>
 
           <button
@@ -95,7 +95,7 @@ const Navbar = ({ isDark, setIsDark, theme, setTheme, setIsOpen, onBack, canGoBa
             className={`hidden lg:flex ${colors.text} p-2 rounded-lg ${colors.menuItemBgColorHover} ${colors.menuItemBgColor} transition-all duration-200 items-center gap-2`}
             title={isExpanded ? "Minimize sidebar" : "Expand sidebar"}
           >
-            <Menu className="w-5 h-5" />
+            <PanelLeft className="w-5 h-5" />
           </button>
 
           <button

@@ -4,6 +4,7 @@ import { type ThemeKey, themes, defaultTheme, type ColorScheme } from '../../dat
 import { menuItems, footerMenuItems, type MenuItem } from '../../data/menuData';
 import { IoArrowBackOutline } from 'react-icons/io5';
 import { ChevronDown, ChevronRight, Settings } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 
 const Sidebar = ({ isDark, theme, isOpen, setIsOpen, activeSubmenu, setActiveSubmenu, onNavigate, showFooterPopup, setShowFooterPopup, isExpanded, setIsExpanded } : { 
@@ -28,6 +29,7 @@ const Sidebar = ({ isDark, theme, isOpen, setIsOpen, activeSubmenu, setActiveSub
   const settings = getLocalSettings();
   const submenuAsColumn = settings.layout.sidebar?.submenuAsColumn ?? true;
   const themeColors = themes[theme][isDark ? 'dark' : 'light'];
+  const navigate = useNavigate();
   
   const baseColors = defaultTheme;
   

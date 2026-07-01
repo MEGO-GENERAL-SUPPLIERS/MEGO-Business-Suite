@@ -13,7 +13,7 @@ import {
 // ====== IApiResponse Interface ======
 export interface IApiResponse<T = any>{
   success: boolean;
-  message?: string | string[] | undefined;
+  message?: string | string[] | null | undefined;
   data?: T; 
   metadata?: any;
   error?: any;
