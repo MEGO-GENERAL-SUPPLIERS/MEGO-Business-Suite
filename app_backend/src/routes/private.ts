@@ -1,20 +1,14 @@
-// src/routes/auth.ts
 import { Router } from 'express';
 import { refresh } from '../controllers/auth/AuthController.js';
 import { authMiddleware } from '../middleware/auth.js';
+import { getCompanyInfo, updateCompanyInfo, uploadCompanyLogo } from '../controllers/private/companyController.js';
+import { getCountries } from '../controllers/private/countryController';
+import { uploadLogoMiddleware } from '../middleware/upload.js';
 
 const router = Router();
 
-/**
- * Public authentication endpoints
- * No authentication required
- */
 router.post('/refresh', refresh);
 
-/**
- * Protected endpoints example
- * Requires valid JWT token
- */
 router.get('/auth/user', authMiddleware, (req, res) => {
   res.json({
     success: true,
@@ -25,5 +19,13 @@ router.get('/auth/user', authMiddleware, (req, res) => {
     }
   });
 });
+
+// Company info management
+router.get('/company-info', getCompanyInfo);
+router.put('/company-info', updateCompanyInfo);
+router.post('/company-info/logo', uploadLogoMiddleware.single('logo'), uploadCompanyLogo);
+
+// Countries lookup
+router.get('/countries', getCountries);
 
 export default router;

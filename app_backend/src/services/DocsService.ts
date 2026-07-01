@@ -9,9 +9,9 @@ export class DocsService {
     const baseUrl = `http://${env.HOST}:${env.PORT}${env.API_BASE}`;
     
     return{
-      title: 'MEGO Admin Dashboard API',
+      title: 'MEGO Business Suite API',
       version: packageJson.version || '1.0.0',
-      description: 'Admin dashboard API for MEGO platform',
+      description: 'Business Suite API for MEGO platform',
       baseUrl: baseUrl,
       apiBase: env.API_BASE,
       endpoints: {
