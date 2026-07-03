@@ -3,13 +3,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getApiConfig, updateApiConfig, type IApiConfig } from '../../utils/localStorageUtils';
 import { 
-  toastAlert, 
   toastSuccess, 
-  toastError, 
-  toastInfo, 
-  toastLoading,
-  dismissToast 
-} from '../../utils/toastAlert';
+  toastInfo,
+  toastDanger,
+  dismissToast, 
+} from '../../lib/toast';
 import { XCircleIcon } from 'lucide-react';
 import { BsExclamationCircle } from 'react-icons/bs';
 import ApiClient from '../../services/apiClient';
@@ -33,7 +31,6 @@ export const ApiConfigModal = ({ isOpen, onClose }: IApiConfigModalProps) => {
   // UI State
   const [isLoading, setIsLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  let testToastId: string | number | null = null; // Track loading toast ID
 
   // Init form with current configs
   useEffect(() => {
@@ -54,15 +51,10 @@ export const ApiConfigModal = ({ isOpen, onClose }: IApiConfigModalProps) => {
   // Close modal handle
   const handleClose = useCallback(() => {
     setFormError(null);
-    // Dismiss any pending toasts when closing modal
-    if (testToastId) {
-      dismissToast(testToastId);
-      testToastId = null;
-    }
     onClose();
   }, [onClose]);
 
-  // ✅ REVISED: Test API health WITHOUT showing toasts internally
+  // Test API health WITHOUT showing toasts internally
   const testApiHealth = async (): Promise<{ success: boolean; message?: string }> => {
     try {
       const apiClient = ApiClient();
@@ -73,7 +65,7 @@ export const ApiConfigModal = ({ isOpen, onClose }: IApiConfigModalProps) => {
       } else {
         return { 
           success: false, 
-          message: response.message as any || 'API is unreachable' 
+          message: (Array.isArray(response.message) ? response.message.join(', ') : response.message) || 'API is unreachable' 
         };
       }
     } catch (error) {
@@ -106,6 +98,9 @@ export const ApiConfigModal = ({ isOpen, onClose }: IApiConfigModalProps) => {
       return;
     }
 
+    // Track loading toast ID so it can be dismissed once the health check resolves
+    let testToastId: string | null = null;
+
     try {
       // Update config in localStorage
       const success = updateApiConfig({
@@ -118,35 +113,32 @@ export const ApiConfigModal = ({ isOpen, onClose }: IApiConfigModalProps) => {
       });
 
       if (!success) {
-        toastError("Failed to cache configurations", "Please try again");
+        toastDanger('Failed to cache configurations', { title: 'Save failed' });
         throw new Error('Failed to cache configuration');
       }
 
-      // ✅ SHOW LOADING TOAST
-      //testToastId = toastLoading("Testing API connection...");
+      // Show a loading/info toast while the health check runs
+      testToastId = toastInfo('Testing API connection…', { title: 'Please wait' });
 
-      // ✅ TEST HEALTH CHECK
+      // Test health check
       const healthResult = await testApiHealth();
 
-      // ✅ DISMISS LOADING TOAST FIRST
+      // Dismiss the loading toast now that we have a result
       if (testToastId) {
         dismissToast(testToastId);
         testToastId = null;
       }
 
-      // ✅ CRITICAL: ONLY CLOSE MODAL ON HEALTH CHECK SUCCESS
+      // Only close modal on health check success
       if (healthResult.success) {
-        toastSuccess(
-          "API configuration updated successfully!",
-          "API connection verified and working"
-        );
+        toastSuccess('API connection verified and working', { title: 'Configuration updated' });
         // Auto-close modal after success toast appears
         setTimeout(handleClose, 1200);
       } else {
-        // ✅ KEEP MODAL OPEN ON FAILURE + SHOW INFO
+        // Keep modal open on failure + show info
         toastInfo(
-          "Configuration cached but API unreachable\n\n",
-          `Health check failed: ${healthResult.message}`
+          `Health check failed: ${healthResult.message}`,
+          { title: 'Configuration cached but API unreachable' }
         );
         // Modal stays open - user can fix settings and retry
       }
@@ -161,10 +153,7 @@ export const ApiConfigModal = ({ isOpen, onClose }: IApiConfigModalProps) => {
         testToastId = null;
       }
       
-      toastError(
-        "Failed to update API configuration",
-        errorMessage
-      );
+      toastDanger(errorMessage, { title: 'Failed to update API configuration' });
       
       setFormError(errorMessage);
     } finally {
@@ -260,7 +249,7 @@ export const ApiConfigModal = ({ isOpen, onClose }: IApiConfigModalProps) => {
           </div>
         )}
 
-        {/* Form - FIXED: Added noValidate and proper onSubmit */}
+        {/* Form */}
         <form 
           onSubmit={handleSubmit} 
           className="p-5 overflow-y-auto flex-1"
@@ -405,7 +394,7 @@ export const ApiConfigModal = ({ isOpen, onClose }: IApiConfigModalProps) => {
             </details>
           </div>
 
-          {/* Submit Button - FIXED: Ensure type="submit" */}
+          {/* Submit Button */}
           <div className="mt-6 pt-4 border-t border-gray-200">
             <button
               type="submit"

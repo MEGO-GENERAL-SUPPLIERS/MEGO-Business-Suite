@@ -85,7 +85,7 @@ const Navbar = ({ isDark, setIsDark, theme, setTheme, setIsOpen, onBack, canGoBa
         <div className="flex items-center gap-3">
           <button
             onClick={() => setIsOpen(true)}
-            className={`lg:hidden ${colors.text} p-2 rounded-lg ${colors.menuItemBgColorHover} transition-all duration-200`}
+            className={`lg:hidden ${colors.text} p-2 rounded-lg ${colors.menuItemBgColorHover} ${colors.menuItemBgColor} transition-all duration-200`}
           >
             <PanelLeft className="w-5 h-5" />
           </button>

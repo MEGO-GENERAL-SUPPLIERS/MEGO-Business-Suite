@@ -6,7 +6,7 @@ import { useAuth } from '../hooks/useAuth';
 import { STORAGE_KEY } from '../utils/localStorageUtils';
 import { ApiConfigModal } from '../components/features/ApiConfigModal';
 import { authenticateUser } from '../services/authService'; 
-import { toastAlert } from '../utils/toastAlert';
+import { toastDanger } from '../lib/toast';
 
 export const LoginV1: React.FC = () => {
   const navigate = useNavigate();
@@ -25,12 +25,12 @@ export const LoginV1: React.FC = () => {
     e.preventDefault();
     
     if (!username.trim() || !password.trim()) {
-      toastAlert({ message: "Please enter both username and password", type: "error" });
+      toastDanger("Please enter both username and password");
       return;
     }
 
     setIsLoading(true);
-    let willRedirect = false; // ✅ Local variable to avoid React closure bugs in the finally block
+    let willRedirect = false;
 
     try {
       const result = await authenticateUser({ username, password });
@@ -38,20 +38,18 @@ export const LoginV1: React.FC = () => {
       if (result.success && result.data) {
         const { token, user, ...restData } = result.data;
 
-        willRedirect = true; // ✅ Mark as redirecting synchronously
+        willRedirect = true;
         setIsRedirecting(true);
 
         setTimeout(() => {
           const loginSuccess = login(token); 
 
           if (loginSuccess) {
-            // ✅ Correctly map fields from the nested 'person' object returned by the backend
             registerUser({
               id: user?.id || Date.now(),
               username: user?.username || username,
               firstName: user?.person?.first_name,
               lastName: user?.person?.last_name,
-              // ✅ Save the new branch and company data for global access
               branch: user?.branch, 
               company: user?.branch?.company,
               ...restData 
@@ -60,12 +58,7 @@ export const LoginV1: React.FC = () => {
             navigate('/dashboard', { replace: true });
           } else {
             setIsRedirecting(false);
-            toastAlert({ 
-              message: "Authentication failed", 
-              description: "Received invalid token format from server. Please contact support.",
-              type: "error",
-              autoClose: 7000
-            });
+            toastDanger("Authentication failed");
           }
         }, 800);
 
@@ -74,21 +67,11 @@ export const LoginV1: React.FC = () => {
           ? result.message.join(', ') 
           : (result.message || "Invalid username or password");
         
-        toastAlert({ 
-          message: "Login failed", 
-          description: errorMessage,
-          type: "error",
-          autoClose: 7000
-        });
+        toastDanger("Login failed");
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
-      toastAlert({ 
-        message: "Login failed", 
-        description: errorMessage,
-        type: "error",
-        autoClose: 7000
-      });
+      toastDanger("Login failed");
     } finally {
       // ✅ Use the local variable instead of the stale React state
       if (!willRedirect) {
@@ -169,11 +152,8 @@ export const LoginV1: React.FC = () => {
           </div>
 
           {isRedirecting && (
-            <div className="flex flex-col items-center justify-center py-6 mb-6 bg-cyan-50/10 rounded-lg border border-cyan-500/20">
+            <div className="flex flex-col items-center justify-center py-2 mb-6 bg-cyan-50/10 rounded-lg border border-cyan-500/20">
               <Loader2 className="w-10 h-10 text-cyan-500 animate-spin" />
-              <p className={`mt-3 text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                Login successful! Redirecting to dashboard...
-              </p>
             </div>
           )}
 

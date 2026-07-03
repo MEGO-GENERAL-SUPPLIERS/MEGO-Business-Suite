@@ -1,6 +1,6 @@
 import type { ICountry } from '../../types/ICountry';
 
-function isoToFlagEmoji(isoCode: string): string {
+function isoToFlagEmoji(isoCode?: string): string {
   if (!isoCode || isoCode.length !== 2) return '';
   const codePoints = isoCode
     .toUpperCase()
@@ -23,7 +23,7 @@ export default function CountrySelect({
 }: CountrySelectProps) {
   return (
     <select
-      className="w-full border rounded px-3 py-2"
+      className="form-input"
       value={value ?? ''}
       disabled={disabled || loading}
       onChange={(e) => onChange(e.target.value ? Number(e.target.value) : null)}
@@ -31,7 +31,7 @@ export default function CountrySelect({
       <option value="">{loading ? 'Loading…' : placeholder}</option>
       {countries.map((c) => (
         <option key={c.id} value={c.id}>
-          {isoToFlagEmoji(c.iso_code)}  {c.name}
+          {isoToFlagEmoji(c.iso_code)}  {c.name_common}
         </option>
       ))}
     </select>

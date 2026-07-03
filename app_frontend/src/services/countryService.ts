@@ -9,7 +9,7 @@ const apiClient = ApiClient();
  */
 export const getCountries = async (): Promise<IApiResponse<ICountry[]>> => {
   try {
-    const response = await apiClient.get<ICountry[]>("/app/countries");
+    const response = await apiClient.get<ICountry[]>("/countries");
     return response;
   } catch (error: any) {
     return apiFetchErrorResponse<ICountry[]>("Failed to fetch countries", error);

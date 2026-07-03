@@ -1,5 +1,5 @@
 export interface ICountry{
   id: number;
-  name: string;
+  name_common: string;
   iso_code: string;
 };
