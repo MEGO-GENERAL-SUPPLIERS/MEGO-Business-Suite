@@ -13,6 +13,7 @@ export class Country extends Model<
 > {
   declare id: number;
   declare name_common: CreationOptional<string>;
+  declare iso3: CreationOptional<string>;
   declare currency_code: CreationOptional<string>;
   declare curreny_name: CreationOptional<string>;
   declare void: CreationOptional<number>;
@@ -27,6 +28,10 @@ Country.init(
     },
     name_common: {
       type: DataTypes.STRING(255),
+      allowNull: false
+    },
+    iso3: {
+      type: DataTypes.STRING(3),
       allowNull: false
     },
     currency_code: {

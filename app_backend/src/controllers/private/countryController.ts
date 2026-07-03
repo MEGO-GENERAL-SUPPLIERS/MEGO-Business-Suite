@@ -1,11 +1,10 @@
 import { Request, Response } from 'express';
-import { Country } from '../../models/index';
+import { findAll } from '../../services/countryService.js';
 
 export const getCountries = async (req: Request, res: Response) => {
-  const countries = await Country.findAll({
-    where: { void: 0 },
-    attributes: ['id', 'name', 'iso_code'],
-    order: [['name', 'ASC']],
+  const countries = await findAll();
+  res.json({
+    success: true,
+    data: countries,
   });
-  res.json({ success: true, data: countries });
 };

@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { refresh } from '../controllers/auth/AuthController.js';
 import { authMiddleware } from '../middleware/auth.js';
-import { getCompanyInfo, updateCompanyInfo, uploadCompanyLogo } from '../controllers/private/companyController.js';
-import { getCountries } from '../controllers/private/countryController';
+import { get, update, uploadCompany } from '../controllers/private/companyController.js';
+import { getCountries } from '../controllers/private/countryController.js';
 import { uploadLogoMiddleware } from '../middleware/upload.js';
 
 const router = Router();
@@ -20,12 +20,10 @@ router.get('/auth/user', authMiddleware, (req, res) => {
   });
 });
 
-// Company info management
-router.get('/company-info', getCompanyInfo);
-router.put('/company-info', updateCompanyInfo);
-router.post('/company-info/logo', uploadLogoMiddleware.single('logo'), uploadCompanyLogo);
+router.get('/company-info', get);
+router.put('/company-info', update);
+router.post('/company-info/logo', uploadLogoMiddleware.single('logo'), uploadCompany);
 
-// Countries lookup
 router.get('/countries', getCountries);
 
 export default router;

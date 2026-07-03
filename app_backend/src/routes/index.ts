@@ -19,6 +19,6 @@ router.use(`/`, publicRoutes);
 router.use(env.API_BASE, publicRoutes);
 
 // Authenticated routes (require JWT token)
-router.use(`${env.API_BASE}/app`, authMiddleware, privateRoutes);
+router.use(`${env.API_BASE}`, authMiddleware, privateRoutes);
 
 export default router;
