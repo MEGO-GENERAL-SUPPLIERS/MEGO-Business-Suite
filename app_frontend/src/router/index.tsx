@@ -8,6 +8,7 @@ import MainLayout from '../layouts/MainLayout';
 import NotFound from '../views/NotFound';
 import PlaceholderPage from '../views/PlaceHolderPage';
 import { flatMenuItems } from '../data/menuData';
+import { Loader2 } from 'lucide-react';
 
 // Lazy-loaded real pages, keyed by menu item id.
 const Dashboard = lazy(() => import('../views/Dashboard'));
@@ -18,7 +19,15 @@ const routeComponents: Record<string, React.LazyExoticComponent<React.ComponentT
 };
 
 export default function AppRouter() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isInitializing } = useAuth();
+
+  if(isInitializing) {
+    return(
+      <div className="flex items-center justify-center h-screen bg-slate-50 dark:bg-slate-900">
+        <Loader2 className="animate-spin *:w-8 *:h-8 text-slate-600 dark:text-slate-300" />
+      </div>
+    );
+  }
 
   return (
     <Routes>

@@ -84,7 +84,7 @@ function ToastCard({ t, variant, message, title }: { t: Toast; variant: ToastVar
     <div
       className={`${config.containerClass} transition-all duration-300 ease-out ${
         t.visible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-1 scale-95'
-      } flex items-start gap-3 rounded-xl shadow-lg shadow-black/5 dark:shadow-black/30 px-4 py-3.5 w-[380px] max-w-[90vw]`}
+      } flex items-start gap-3 rounded-xl shadow-lg shadow-black/5 dark:shadow-black/30 px-4 py-2.5 w-[380px] max-w-[90vw]`}
     >
       <div className={`${config.iconWrapClass} w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5`}>
         <Icon className={`w-4 h-4 ${config.iconClass}`} />

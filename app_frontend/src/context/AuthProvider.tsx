@@ -53,6 +53,7 @@ const validateAndDecodeJWToken = (token: string | undefined): { user: { id: numb
 
 export interface AuthContextType {
   isAuthenticated: boolean;
+  isInitializing: boolean;
   user: { id: number; username: string; } | null;
   login: (token: string) => boolean;
   logout: () => void;
@@ -64,6 +65,7 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
   const [authDetails, setAuthDetails] = useState<{
     user: { id: number; username: string; } | null;
     exp: number | null;
@@ -110,6 +112,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (stored.loggedIn && stored.token) {
       validateAndSetAuth(stored.token);
     }
+    setIsInitializing(false);
   }, [validateAndSetAuth]);
 
   useEffect(() => {
@@ -147,6 +150,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   return (
     <AuthContext.Provider value={{ 
       isAuthenticated, 
+      isInitializing,
       user: authDetails.user, 
       login: loginWithCredentials, 
       logout: handleLogout,
