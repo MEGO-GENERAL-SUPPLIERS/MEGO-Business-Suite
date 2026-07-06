@@ -67,11 +67,11 @@ export const LoginV1: React.FC = () => {
           ? result.message.join(', ') 
           : (result.message || "Invalid username or password");
         
-        toastDanger("Login failed");
+        toastDanger(errorMessage, { title: 'Login failed' });
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
-      toastDanger("Login failed");
+      toastDanger(errorMessage);
     } finally {
       // ✅ Use the local variable instead of the stale React state
       if (!willRedirect) {

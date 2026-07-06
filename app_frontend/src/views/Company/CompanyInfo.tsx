@@ -94,7 +94,7 @@ export default function CompanyInfo() {
                 className="form-input"
                 value={name}
                 onChange={(e) => { setName(e.target.value); setIsDirty(true); }}
-                placeholder="e.g. Right to Care Malawi"
+                placeholder="e.g. MEGO General Suppliers"
               />
             </div>
             <div>

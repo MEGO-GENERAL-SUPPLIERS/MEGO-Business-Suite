@@ -4,7 +4,7 @@ import { type ThemeKey, themes, defaultTheme, type ColorScheme } from '../../dat
 import { menuItems, footerMenuItems, type MenuItem } from '../../data/menuData';
 import { IoArrowBackOutline } from 'react-icons/io5';
 import { ChevronDown, ChevronRight, Settings } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useAppNavigation } from '../../hooks/useAppNavigation';
 
 
 const Sidebar = ({ isDark, theme, isOpen, setIsOpen, activeSubmenu, setActiveSubmenu, onNavigate, showFooterPopup, setShowFooterPopup, isExpanded, setIsExpanded } : { 
@@ -29,7 +29,7 @@ const Sidebar = ({ isDark, theme, isOpen, setIsOpen, activeSubmenu, setActiveSub
   const settings = getLocalSettings();
   const submenuAsColumn = settings.layout.sidebar?.submenuAsColumn ?? true;
   const themeColors = themes[theme][isDark ? 'dark' : 'light'];
-  const navigate = useNavigate();
+  const { navigateTo } = useAppNavigation();
   
   const baseColors = defaultTheme;
   
@@ -56,9 +56,7 @@ const Sidebar = ({ isDark, theme, isOpen, setIsOpen, activeSubmenu, setActiveSub
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as Node;
       
-      // Check if click is outside footer popup
       if (showFooterPopup && footerPopupRef.current && !footerPopupRef.current.contains(target)) {
-        // Also check if click is not on the footer button itself
         const footerButton = sidebarRef.current?.querySelector('[data-footer-button]');
         if (footerButton && !footerButton.contains(target)) {
           setShowFooterPopup(false);
@@ -71,7 +69,6 @@ const Sidebar = ({ isDark, theme, isOpen, setIsOpen, activeSubmenu, setActiveSub
           setIsOpen(false);
           setActiveSubmenu(null);
         } else if (!isMobile && activeSubmenu && submenuAsColumn) {
-          // Check if click is on the right side of submenu (outside submenu area)
           if (submenuRef.current) {
             const rect = submenuRef.current.getBoundingClientRect();
             if (e.clientX > rect.right) {
@@ -86,7 +83,6 @@ const Sidebar = ({ isDark, theme, isOpen, setIsOpen, activeSubmenu, setActiveSub
   }, [isMobile, isOpen, activeSubmenu, submenuAsColumn, showFooterPopup, setIsOpen, setActiveSubmenu, setShowFooterPopup]);
 
   const handleMenuClick = (itemId: string) => {
-    // Always set the active submenu when clicking a menu with submenus
     setActiveSubmenu(activeSubmenu === itemId ? null : itemId);
   };
 
@@ -98,7 +94,7 @@ const Sidebar = ({ isDark, theme, isOpen, setIsOpen, activeSubmenu, setActiveSub
   };
 
   const handleFooterItemClick = (itemId: string) => {
-    onNavigate(itemId);
+    navigateTo(itemId);
     setShowFooterPopup(false);
     closeAll();
   };
@@ -131,16 +127,23 @@ const Sidebar = ({ isDark, theme, isOpen, setIsOpen, activeSubmenu, setActiveSub
         <div className={`h-full ${colors.sidebar} ${colors.border} border-r backdrop-blur-xl shadow-2xl flex overflow-hidden`}>
           {/* Main Menu */}
           <div className={`${shouldShowExpanded ? 'w-60' : 'w-16'} flex flex-col transition-all duration-300 flex-shrink-0`}>
-            <div className="flex items-center justify-center p-3 border-b border-blue-200/30 dark:border-slate-700/30 h-[60px]">
+            <div className="flex items-center justify-center p-3 border-b border-blue-200/30 dark:border-slate-700/30 h-[60px] overflow-hidden">
               {shouldShowExpanded ? (
-                <span className={`${colors.text} font-semibold text-md`}>
-                  <span className='text-mego-slate-500 dark:text-slate-400 space-x-2'>ME</span>
-                  <span className='text-mego-orange-500'>GO</span>
-                </span>
+                settings.user?.company?.logo_url ? (
+                  <img src={settings.user.company.logo_url} alt={settings.user.company.name} className="h-10 w-auto object-contain" />
+                ) : (
+                  <span className={`${colors.text} font-semibold text-md truncate px-2`}>
+                    {settings.user?.company?.name || "MEGO"}
+                  </span>
+                )
               ) : (
-                <div className={`w-8 h-8 rounded-lg ${themeColors.accent} flex items-center justify-center`}>
-                  <span className="text-white font-bold text-xs">M</span>
-                </div>
+                settings.user?.company?.logo_url ? (
+                  <img src={settings.user.company.logo_url} alt={settings.user.company.name} className="w-8 h-8 rounded-lg object-cover" />
+                ) : (
+                  <div className={`w-8 h-8 rounded-lg ${themeColors.accent} flex items-center justify-center`}>
+                    <span className="text-white font-bold text-xs">{settings.user?.company?.name?.charAt(0) || "M"}</span>
+                  </div>
+                )
               )}
             </div>
 

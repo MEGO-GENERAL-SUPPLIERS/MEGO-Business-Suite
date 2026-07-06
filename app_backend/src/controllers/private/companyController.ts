@@ -1,3 +1,4 @@
+// src/controllers/private/companyController.ts
 import { Request, Response } from 'express';
 import { findCompany, saveCompany, uploadCompanyLogo} from '../../services/companyService';
 

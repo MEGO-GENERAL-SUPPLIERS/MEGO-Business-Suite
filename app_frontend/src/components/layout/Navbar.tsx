@@ -27,6 +27,7 @@ const Navbar = ({ isDark, setIsDark, theme, setTheme, setIsOpen, onBack, canGoBa
   const { logout } = useAuth();
   
   const baseColors = defaultTheme;
+   const settings = getLocalSettings(); 
 
   const colors = isDark ? baseColors.dark : baseColors.light;
 
@@ -106,9 +107,15 @@ const Navbar = ({ isDark, setIsDark, theme, setTheme, setIsOpen, onBack, canGoBa
             <ArrowLeftIcon className="w-5 h-5" />
           </button>
 
-          <h1 className={`${colors.text} font-bold text-lg hidden sm:block bg-gradient-to-r ${themeColors.primary} bg-clip-text text-transparent`}>
-            {appConfigs.appName}
-          </h1>
+          {/*Logo and Appname */}
+          <div className="hidden sm:flex items-center gap-3">
+            {settings.user?.company?.logo_url && (
+              <img src={settings.user.company.logo_url} alt="Company Logo" className="h-8 w-8 rounded-md object-cover shadow-sm" />
+            )}
+            <h1 className={`${colors.text} font-bold text-lg bg-gradient-to-r ${themeColors.primary} bg-clip-text text-transparent`}>
+              {settings.user?.company?.name || appConfigs.appName}
+            </h1>
+          </div>
         </div>
 
         <div className="flex items-center gap-2">

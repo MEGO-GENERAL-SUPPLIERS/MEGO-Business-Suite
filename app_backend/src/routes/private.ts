@@ -1,3 +1,4 @@
+// src/routes/private.ts 
 import { Router } from 'express';
 import { refresh } from '../controllers/auth/AuthController.js';
 import { authMiddleware } from '../middleware/auth.js';

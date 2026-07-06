@@ -1,3 +1,4 @@
+// src/services/companyService.ts
 import { Company } from "../models";
 
 export interface UpdateCompanyInfoParams {

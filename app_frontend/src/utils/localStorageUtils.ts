@@ -1,13 +1,15 @@
 // src/utils/localStorageUtils.ts
-export const STORAGE_KEY = 'mego-admin-pro';
-export const ADMIN_STORAGE_KEY = 'mego-admin';
+export const STORAGE_KEY = 'mego-business-suite';
+export const USER_STORAGE_KEY = 'mego-user';
+import { type ICompany } from '../types/ICompanyInfo';
+import type { IUser } from '../types/IUser';
 
 export interface LocalStorageUtils {
   theme: {
     name: 'light' | 'dark';
     ui?: string;
   };
-  user: Record<string, unknown> | null;
+  user: IUser | null;
   auth: Record<string, unknown> | null;
   layout: {
     sidebar: Record<string, unknown> | null;
@@ -17,7 +19,7 @@ export interface LocalStorageUtils {
   api: IApiConfig;
 }
 
-export interface AdminAuth {
+export interface UserAuth {
   loggedIn: boolean;
   loginTime?: string;
   logoutTime?: string;
@@ -39,7 +41,7 @@ export interface IApiConfig{
 
 export const defaultSettings: LocalStorageUtils = {
   theme: { name: 'dark', ui: 'cyan' },
-  user: { id: 1, name: 'Admin' },
+  user: null,
   auth: null,
   layout: { 
     sidebar: { expanded: false, submenuAsColumn: true }, 
@@ -49,14 +51,14 @@ export const defaultSettings: LocalStorageUtils = {
   api: {
     protocol: 'http',
     host: 'localhost',
-    port: '3000',
+    port: '3002',
     baseUrl: '/api/v1',
     timeout: 30000,
     withCredentials: false
   }
 };
 
-const defaultAdminAuth: AdminAuth = {
+const defaultUserAuth: UserAuth = {
   loggedIn: false,
 };
 
@@ -69,8 +71,8 @@ export const ensureLocalStorageUtils = (): void => {
     if (!localStorage.getItem(STORAGE_KEY)) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultSettings));
     }
-    if (!localStorage.getItem(ADMIN_STORAGE_KEY)) {
-      localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(defaultAdminAuth));
+    if (!localStorage.getItem(USER_STORAGE_KEY)) {
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(defaultUserAuth));
     }
   } catch (e) {
     console.error('Failed to initialize localStorage', e);
@@ -168,10 +170,10 @@ export const setTheme = (name: 'light' | 'dark'): void => {
   saveLocalSettings({ theme: { name } });
 };
 
-export const getAdminAuth = (): AdminAuth => {
-  if (!isBrowser()) return defaultAdminAuth; // ✅ Added SSR safety check
+export const getUserAuth = (): UserAuth => {
+  if (!isBrowser()) return defaultUserAuth; // ✅ Added SSR safety check
   try {
-    const stored = localStorage.getItem(ADMIN_STORAGE_KEY);
+    const stored = localStorage.getItem(USER_STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
       if (typeof parsed.loggedIn === 'boolean') {
@@ -179,17 +181,17 @@ export const getAdminAuth = (): AdminAuth => {
       }
     }
   } catch (error) {
-    console.warn('Failed to parse admin auth:', error);
+    console.warn('Failed to parse user auth:', error);
   }
-  return defaultAdminAuth;
+  return defaultUserAuth;
 };
 
-export const setAdminAuth = (auth: Partial<AdminAuth>) => {
+export const setUserAuth = (auth: Partial<UserAuth>) => {
   if (!isBrowser()) return; // ✅ Added SSR safety check
   try {
-    const current = getAdminAuth();
+    const current = getUserAuth();
     const updated = { ...current, ...auth };
-    localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(updated));
+    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(updated));
   } catch (error) {
     console.error('Failed to save admin auth:', error);
   }

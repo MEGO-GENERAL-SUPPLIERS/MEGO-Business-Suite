@@ -33,7 +33,13 @@ const Footer = ({ isDark, user = 'John Doe', loginTime = '09:30 AM' } : {
       <div className="px-4 py-3">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
           <div className={`${colors.textSecondary} flex items-center gap-4 flex-wrap justify-center sm:justify-start`}>
-            <span>© {currentYear} All rights reserved</span>
+            <div className={`${colors.textSecondary} flex items-center gap-4 flex-wrap justify-center sm:justify-start`}>
+              <span>&copy; {currentYear} {settings.user?.company?.name || 'All rights reserved'}</span>
+              {settings.user?.company?.slogan && (
+                <span className="italic text-xs hidden md:inline opacity-80">| {settings.user.company.slogan}</span>
+              )}
+              <span className="font-semibold">{appConfigs.appVersion}</span>
+            </div>
             <span className="font-semibold">{appConfigs.appVersion}</span>
           </div>
           <div className={`${colors.textSecondary} flex items-center gap-4`}>

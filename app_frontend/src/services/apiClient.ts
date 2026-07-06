@@ -7,7 +7,7 @@ import axios, {
 } from 'axios';
 import { 
   getApiConfig, 
-  getAdminAuth,
+  getUserAuth,
   isBrowser 
 } from '../utils/localStorageUtils';
 
@@ -107,8 +107,13 @@ class ApiClientClass {
         this.pendingRequests.set(key, controller);
         config.signal = controller.signal;
 
+        // fix  FormDta uploads
+        if(config.data instanceof FormData){
+          delete config.headers['Content-Type'];
+        }
+
         // Inject auth token
-        const auth = getAdminAuth();
+        const auth = getUserAuth();
         if (auth.token) {
           config.headers.Authorization = `Bearer ${auth.token}`;
         } else{

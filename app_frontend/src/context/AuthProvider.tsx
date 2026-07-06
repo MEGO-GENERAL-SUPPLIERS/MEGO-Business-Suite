@@ -2,8 +2,8 @@
 import React, { useState, useEffect, useCallback, createContext } from 'react';
 import {
   ensureLocalStorageUtils,
-  getAdminAuth,
-  setAdminAuth,
+  getUserAuth,
+  setUserAuth,
   saveLocalSettings,
   type LocalStorageUtils
 } from '../utils/localStorageUtils';
@@ -75,7 +75,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const result = validateAndDecodeJWToken(token);
     
     if (!result) {
-      setAdminAuth({
+      setUserAuth({
         loggedIn: false,
         token: undefined,
         logoutTime: new Date().toISOString()
@@ -85,7 +85,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return false;
     }
 
-    setAdminAuth({ 
+    setUserAuth({ 
       loggedIn: true, 
       token, 
       loginTime: new Date().toISOString() 
@@ -96,7 +96,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const handleLogout = useCallback(() => {
-    setAdminAuth({
+    setUserAuth({
       loggedIn: false,
       token: undefined,
       logoutTime: new Date().toISOString()
@@ -107,7 +107,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     ensureLocalStorageUtils();
-    const stored = getAdminAuth();
+    const stored = getUserAuth();
 
     if (stored.loggedIn && stored.token) {
       validateAndSetAuth(stored.token);
